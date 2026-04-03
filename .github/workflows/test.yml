@@ -9,74 +9,7 @@ permissions:
   contents: read
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ matrix.experimental }}
-    strategy:
-      max-parallel: 20
-      matrix:
-        os:
-          - ubuntu-latest
-          - windows-latest
-          - macos-latest
-        java:
-          - 8
-          - 11
-          - 17
-          - 21
-          - 25
-        experimental:
-          - false
-        include:
-          - java: 26-ea
-            experimental: true
-            os: ubuntu-latest
-    steps: # addition?
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-        with:
-          persist-credentials: false
-      - uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - name: Set up JDK ${{ matrix.java }}
-        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
-        with:
-          distribution: ${{ runner.os == 'macOS' && matrix.java == '8' && 'zulu' ||
-            'temurin' }}
-          java-version: ${{ matrix.java }}
-      - name: Build with Maven
-        run: mvn --errors --show-version --batch-mode --no-transfer-progress
-          -Ddoclint=all -DskipTests
-      - uses: actions/upload-artifact@v4
-        with:
-          name: build-artifacts
-          path: target/
-    name: Build
-    container: eclipse-temurin:21-jdk
-  test-job-1:
-    runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ matrix.experimental }}
-    strategy:
-      max-parallel: 20
-      matrix:
-        os:
-          - ubuntu-latest
-          - windows-latest
-          - macos-latest
-        java:
-          - 8
-          - 11
-          - 17
-          - 21
-          - 25
-        experimental:
-          - false
-        include:
-          - java: 26-ea
-            experimental: true
-            os: ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
@@ -87,12 +20,37 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name: Set up JDK ${{ matrix.java }}
+      - name: Set up JDK 21
         uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
         with:
-          distribution: ${{ runner.os == 'macOS' && matrix.java == '8' && 'zulu' ||
-            'temurin' }}
-          java-version: ${{ matrix.java }}
+          distribution: temurin
+          java-version: '21'
+      - name: Build with Maven
+        run: mvn --errors --show-version --batch-mode --no-transfer-progress
+          -Ddoclint=all -DskipTests
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: target/
+    name: Build
+    container: eclipse-temurin:21-jdk
+  test-job-1:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+      - uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Set up JDK 21
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
+        with:
+          distribution: temurin
+          java-version: '21'
       - &a1
         name: Start services
         run: |-
@@ -123,27 +81,7 @@ jobs:
     needs:
       - build
   test-job-2:
-    runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ matrix.experimental }}
-    strategy:
-      max-parallel: 20
-      matrix:
-        os:
-          - ubuntu-latest
-          - windows-latest
-          - macos-latest
-        java:
-          - 8
-          - 11
-          - 17
-          - 21
-          - 25
-        experimental:
-          - false
-        include:
-          - java: 26-ea
-            experimental: true
-            os: ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
@@ -154,12 +92,11 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name: Set up JDK ${{ matrix.java }}
+      - name: Set up JDK 21
         uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
         with:
-          distribution: ${{ runner.os == 'macOS' && matrix.java == '8' && 'zulu' ||
-            'temurin' }}
-          java-version: ${{ matrix.java }}
+          distribution: temurin
+          java-version: '21'
       - *a1
       - uses: actions/download-artifact@v4
         with:
@@ -176,27 +113,7 @@ jobs:
     needs:
       - build
   test-job-3:
-    runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ matrix.experimental }}
-    strategy:
-      max-parallel: 20
-      matrix:
-        os:
-          - ubuntu-latest
-          - windows-latest
-          - macos-latest
-        java:
-          - 8
-          - 11
-          - 17
-          - 21
-          - 25
-        experimental:
-          - false
-        include:
-          - java: 26-ea
-            experimental: true
-            os: ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
@@ -207,12 +124,11 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name: Set up JDK ${{ matrix.java }}
+      - name: Set up JDK 21
         uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
         with:
-          distribution: ${{ runner.os == 'macOS' && matrix.java == '8' && 'zulu' ||
-            'temurin' }}
-          java-version: ${{ matrix.java }}
+          distribution: temurin
+          java-version: '21'
       - *a1
       - uses: actions/download-artifact@v4
         with:
@@ -229,27 +145,7 @@ jobs:
     needs:
       - build
   test-job-4:
-    runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ matrix.experimental }}
-    strategy:
-      max-parallel: 20
-      matrix:
-        os:
-          - ubuntu-latest
-          - windows-latest
-          - macos-latest
-        java:
-          - 8
-          - 11
-          - 17
-          - 21
-          - 25
-        experimental:
-          - false
-        include:
-          - java: 26-ea
-            experimental: true
-            os: ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
@@ -260,12 +156,11 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name: Set up JDK ${{ matrix.java }}
+      - name: Set up JDK 21
         uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
         with:
-          distribution: ${{ runner.os == 'macOS' && matrix.java == '8' && 'zulu' ||
-            'temurin' }}
-          java-version: ${{ matrix.java }}
+          distribution: temurin
+          java-version: '21'
       - *a1
       - uses: actions/download-artifact@v4
         with:
